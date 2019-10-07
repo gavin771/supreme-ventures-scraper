@@ -28,7 +28,7 @@ const games = [
 
 module.exports = () => {
   return puppeteer
-    .launch()
+    .launch({ args: ["--no-sandbox"] })
     .then(browser => browser.newPage())
     .then(page => {
       return page.goto(url).then(function() {
