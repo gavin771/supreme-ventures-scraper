@@ -1,7 +1,7 @@
 const express = require("express");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
-const getResults = require("./getResults");
+const getResults = require("./getResults").getResults;
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -16,13 +16,13 @@ app.get("/", (req, res) => {
   res.status(200).send("Up and running!");
 });
 
-app.get("/results", async (req, res) => {
+app.get("/results/:game", async (req, res) => {
   try {
-    const gameResults = await getResults();
+    const gameResults = await getResults(req.params.game, req.query.draw);
 
     res.status(200).json(gameResults);
   } catch (e) {
-    res.status(400).json(e);
+    res.status(400).json({ error: e.message, result: null });
   }
 });
 
