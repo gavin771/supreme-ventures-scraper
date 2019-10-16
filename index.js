@@ -13,9 +13,9 @@ exports.getGameResults = async (req, res) => {
 
 exports.storeGameResults = async (req, res) => {
   try {
-    const result = await scrapeAndStore();
+    const result = await scrapeAndStore(req.params.game);
 
-    res.status(200).json(result);
+    res.status(200).json({ error: null, result });
   } catch (e) {
     res.status(400).json({ error: e.message, result: null });
   }
