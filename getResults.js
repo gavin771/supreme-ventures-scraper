@@ -47,7 +47,7 @@ module.exports.getResults = async (gameKey = null, drawName = null) => {
       error = "Game not defined";
     }
 
-    return { error: error, result: results };
+    return results;
   } catch (e) {
     throw e;
   }
