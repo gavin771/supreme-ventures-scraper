@@ -21,7 +21,7 @@ exports.handleRequest = async (req, res) => {
     }
 
     console.log(
-      `Returning handleJobRequest response: ${JSON.stringify(jobResponse)}`
+      `Returning handleJobRequest response: ${JSON.stringify(response)}`
     );
 
     res.status(200).json({ error: null, result: response });
