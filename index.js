@@ -1,25 +1,6 @@
 const getResults = require("./getResults").getResults;
 const scrapeAndStore = require("./getResults").scrapeAndStore;
 
-const getGameResults = async (game, draw) => {
-  try {
-    const gameResults = await getResults(req.params.game, req.query.draw);
-
-    return gameResults;
-  } catch (e) {
-    throw e;
-  }
-};
-
-const storeGameResults = async game => {
-  try {
-    const result = await scrapeAndStore(req.params.game);
-    return result;
-  } catch (e) {
-    throw e;
-  }
-};
-
 exports.handleRequest = async (req, res) => {
   try {
     let response = null;
@@ -28,10 +9,10 @@ exports.handleRequest = async (req, res) => {
 
     switch (payload.action) {
       case "results":
-        response = await getGameResults(payload.game, payload.draw);
+        response = await getResults(payload.game, payload.draw);
         break;
       case "store":
-        response = await storeGameResults(payload.game);
+        response = await scrapeAndStore(payload.game);
         break;
       default: {
         const message = `Request type is not valid: ${payload.action}`;
