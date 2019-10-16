@@ -16,7 +16,7 @@ exports.handleRequest = async (req, res) => {
         break;
       default: {
         const message = `Request type is not valid: ${payload.action}`;
-        throw message;
+        throw new Error(message);
       }
     }
 
