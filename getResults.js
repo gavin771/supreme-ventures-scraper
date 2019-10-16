@@ -1,6 +1,6 @@
 const cheerio = require("cheerio");
 const puppeteer = require("puppeteer");
-const parseDate = require("date-fns/parse");
+const getHours = require("date-fns/getHours");
 const getTime = require("date-fns/getTime");
 const getYear = require("date-fns/getYear");
 const getDate = require("date-fns/getDate");
@@ -18,6 +18,11 @@ module.exports.getResults = async (gameKey = null, drawName = null) => {
   const date = getTime(
     new Date(getYear(currentDate), getMonth(currentDate), getDate(currentDate))
   );
+
+  console.log("Retrieving results");
+  console.log("gameKey: " + gameKey);
+  console.log("drawName: " + drawName);
+
   try {
     if (gameKey) {
       const game = games.find(game => game.key === gameKey);
@@ -48,10 +53,10 @@ module.exports.getResults = async (gameKey = null, drawName = null) => {
   }
 };
 
-module.exports.scrapeAndStore = async () => {
+module.exports.scrapeAndStore = async (gameKey = null) => {
   try {
     //scrape page
-    const pageData = await scrapePage();
+    const pageData = await scrapePage(gameKey);
 
     //save to db
     saveData(pageData);
@@ -60,7 +65,30 @@ module.exports.scrapeAndStore = async () => {
     throw e;
   }
 };
-const scrapePage = () => {
+
+const scrapePage = (gameKey = null) => {
+  let _games = games;
+  const currentDate = new Date();
+  const currentTimestamp = getTime(
+    new Date(
+      getYear(currentDate),
+      getMonth(currentDate),
+      getDate(currentDate),
+      getHours(currentDate)
+    )
+  );
+  console.log("Scraping Page");
+  console.log("gameKey: " + gameKey);
+  console.log(
+    "Execution Time: " +
+      new Date(
+        getYear(currentDate),
+        getMonth(currentDate),
+        getDate(currentDate),
+        getHours(currentDate)
+      )
+  );
+
   return puppeteer
     .launch({ args: ["--no-sandbox"] })
     .then(browser => browser.newPage())
@@ -72,31 +100,34 @@ const scrapePage = () => {
     .then(async html => {
       const $ = cheerio.load(html);
 
-      games.forEach(game => {
+      _games.forEach(game => {
         let winningNumbers = [];
+
         $(game.numbersSelector).each(function() {
           winningNumbers.push(parseInt($(this).text()));
         });
-        let date = $(game.dateSelector).text();
+        // let date = $(game.dateSelector).text();
         let drawName = $(game.drawNameSelector).text();
 
-        if (date) {
-          date = getTime(parseDate(date, "EEEE, MMMM d", new Date()));
-        }
+        // if (date) {
+        //   date = getTime(parseDate(date, "EEEE, MMMM d", new Date()));
+        // }
         if (drawName) {
           drawName = drawName.toLowerCase().replace(/ /g, "-");
         }
 
         game.winningNumbers = winningNumbers;
-        game.date = date;
+        game.date = currentTimestamp;
         game.drawName = drawName;
 
         delete game.drawNameSelector;
         delete game.numbersSelector;
         delete game.dateSelector;
       });
-
-      return games;
+      if (gameKey) {
+        _games = _games.filter(game => game.key === gameKey);
+      }
+      return _games;
     })
     .catch(e => {
       console.error(e);
@@ -114,6 +145,8 @@ const scrapePage = () => {
  * @param {string} games[].drawName
  */
 const saveData = games => {
+  console.log("Saving Data");
+  console.log(games);
   return games.forEach(game => {
     storeResults(game.key, game.drawName, game.date, game.winningNumbers);
   });
