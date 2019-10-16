@@ -20,7 +20,7 @@ exports.handleRequest = async (req, res) => {
       }
     }
 
-    logger.info(
+    console.log(
       `Returning handleJobRequest response: ${JSON.stringify(jobResponse)}`
     );
 
