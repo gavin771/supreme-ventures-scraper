@@ -4,7 +4,10 @@ const scrapeAndStore = require("./getResults").scrapeAndStore;
 exports.handleRequest = async (req, res) => {
   try {
     let response = null;
-    const payload = req.body;
+    const payload = Buffer.isBuffer(req.body)
+      ? JSON.parse(Buffer.from(req.body).toString())
+      : req.body;
+
     console.log(`Received payload: ${JSON.stringify(payload)}`);
 
     switch (payload.action) {
