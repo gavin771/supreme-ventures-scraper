@@ -34,7 +34,7 @@ module.exports.getResults = async (gameKey = null, drawName = null) => {
         if (!numbers) {
           console.log("no numbers found");
           //scrape page
-          const pageData = await scrapePage();
+          const pageData = await scrapePage(gameKey);
 
           //save to db
           saveData(pageData);
