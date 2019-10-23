@@ -39,7 +39,11 @@ app.get("/store-results/:game", async (req, res) => {
 
 app.get("/results/:game", async (req, res) => {
   try {
-    const gameResults = await getResults(req.params.game, req.query.draw);
+    const gameResults = await getResults(
+      req.params.game,
+      req.query.draw,
+      req.query.date
+    );
 
     res.status(200).json(gameResults);
   } catch (e) {
