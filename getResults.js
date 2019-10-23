@@ -1,6 +1,5 @@
 const cheerio = require("cheerio");
 const puppeteer = require("puppeteer");
-const getHours = require("date-fns/getHours");
 const getTime = require("date-fns/getTime");
 const getYear = require("date-fns/getYear");
 const getDate = require("date-fns/getDate");
@@ -90,7 +89,8 @@ const scrapePage = (gameKey = null) => {
     .launch({ args: ["--no-sandbox"] })
     .then(browser => browser.newPage())
     .then(page => {
-      return page.goto(url, { waitUntil: "networkidle0" }).then(() => {
+      return page.goto(url, { waitUntil: "networkidle0" }).then(async () => {
+        await page.waitFor(1000);
         return page.content();
       });
     })
