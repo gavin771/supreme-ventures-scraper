@@ -16,12 +16,10 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 module.exports.save = (gameKey, drawName, date, numbers) => {
-  db.ref(`winning-numbers/${gameKey}/${date}/${drawName}`).set({ numbers });
+  db.ref(`${gameKey}/${date}/${drawName}`).set({ ...numbers });
 };
 
 module.exports.retrieveGame = async (gameKey, date, drawName) => {
-  const snapshot = await db
-    .ref(`winning-numbers/${gameKey}/${date}/${drawName}`)
-    .once("value");
+  const snapshot = await db.ref(`${gameKey}/${date}/${drawName}`).once("value");
   return snapshot.val();
 };

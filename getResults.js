@@ -15,6 +15,7 @@ module.exports.getResults = async (gameKey = null, drawName = null) => {
   let results = null;
   let error = null;
   const currentDate = new Date();
+  //TODO: Allow date to be passed as a parameter to check for past numbers
   const date = getTime(
     new Date(getYear(currentDate), getMonth(currentDate), getDate(currentDate))
   );
@@ -29,16 +30,18 @@ module.exports.getResults = async (gameKey = null, drawName = null) => {
       if (game) {
         //check db
         let numbers = await retrieveGameResults(gameKey, date, drawName);
+        // console.log(numbers);
         if (!numbers) {
+          console.log("no numbers found");
           //scrape page
           const pageData = await scrapePage();
 
           //save to db
           saveData(pageData);
 
-          results = parseFirebaseData(gameKey, pageData);
+          results = parseFirebaseData(gameKey, pageData, true);
         } else {
-          results = parseFirebaseData(gameKey, numbers);
+          results = parseFirebaseData(gameKey, numbers, false);
         }
       } else {
         error = `${gameKey} does not exist.`;
@@ -70,12 +73,7 @@ const scrapePage = (gameKey = null) => {
   let _games = games;
   const currentDate = new Date();
   const currentTimestamp = getTime(
-    new Date(
-      getYear(currentDate),
-      getMonth(currentDate),
-      getDate(currentDate),
-      getHours(currentDate)
-    )
+    new Date(getYear(currentDate), getMonth(currentDate), getDate(currentDate))
   );
   console.log("Scraping Page");
   console.log("gameKey: " + gameKey);
@@ -84,8 +82,7 @@ const scrapePage = (gameKey = null) => {
       new Date(
         getYear(currentDate),
         getMonth(currentDate),
-        getDate(currentDate),
-        getHours(currentDate)
+        getDate(currentDate)
       )
   );
 
@@ -93,7 +90,7 @@ const scrapePage = (gameKey = null) => {
     .launch({ args: ["--no-sandbox"] })
     .then(browser => browser.newPage())
     .then(page => {
-      return page.goto(url).then(function() {
+      return page.goto(url, { waitUntil: "networkidle0" }).then(() => {
         return page.content();
       });
     })
@@ -106,12 +103,9 @@ const scrapePage = (gameKey = null) => {
         $(game.numbersSelector).each(function() {
           winningNumbers.push(parseInt($(this).text()));
         });
-        // let date = $(game.dateSelector).text();
+
         let drawName = $(game.drawNameSelector).text();
 
-        // if (date) {
-        //   date = getTime(parseDate(date, "EEEE, MMMM d", new Date()));
-        // }
         if (drawName) {
           drawName = drawName.toLowerCase().replace(/ /g, "-");
         }
@@ -152,15 +146,18 @@ const saveData = games => {
   });
 };
 
-const parseFirebaseData = (gameKey, data) => {
+const parseFirebaseData = (gameKey, data, isAllGames) => {
   const matchingGame = games.find(game => game.key === gameKey);
 
-  if (typeof data === "object") {
+  console.log(data);
+
+  //data will either be the array of winning numbers or an array all games
+  if (isAllGames) {
     matchingGame.winningNumbers = data.find(
       game => game.key === gameKey
     ).winningNumbers;
   } else {
-    matchingGame.winningNumbers = data.numbers;
+    matchingGame.winningNumbers = data;
   }
 
   delete matchingGame.dateSelector;
