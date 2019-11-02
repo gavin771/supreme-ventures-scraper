@@ -80,7 +80,6 @@ module.exports.scrapeAndStore = async (gameKey = null) => {
   }
 };
 
-//TODO allow to scrap for a specific draw
 const scrapePage = async (gameKey = null) => {
   let _games = games;
   const currentDate = new Date();
