@@ -3,6 +3,7 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const getResults = require("./getResults").getResults;
 const scrapeAndStore = require("./getResults").scrapeAndStore;
+const createJobs = require("./jobs").createJobs;
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -20,6 +21,16 @@ app.get("/", (req, res) => {
 app.get("/store-results", async (req, res) => {
   try {
     const result = await scrapeAndStore();
+
+    res.status(200).json({ error: null, result });
+  } catch (e) {
+    res.status(400).json({ error: e.message, result: null });
+  }
+});
+
+app.get("/create-jobs", async (req, res) => {
+  try {
+    const result = await createJobs();
 
     res.status(200).json({ error: null, result });
   } catch (e) {
