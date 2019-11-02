@@ -114,9 +114,21 @@ const scrapePage = async (gameKey = null) => {
       let winningNumbers = [];
       let drawName = $(game.drawNameSelector).text();
 
-      $(game.numbersSelector).each(function() {
-        winningNumbers.push(parseInt($(this).text()));
-      });
+      if (game.key === "cash-pot") {
+        const xpathData = await page.$x(game.numbersSelector);
+        const xpathTextContent = await xpathData[0].getProperty("textContent");
+        const winningSymbol = await xpathTextContent.jsonValue();
+        console.log(winningSymbol);
+        winningNumbers.push(
+          cashpotMappings.find(
+            mapping => mapping.symbol === winningSymbol.toLowerCase()
+          ).number
+        );
+      } else {
+        $(game.numbersSelector).each(function() {
+          winningNumbers.push(parseInt($(this).text()));
+        });
+      }
 
       if (drawName) {
         drawName = drawName.toLowerCase().replace(/ /g, "-");
