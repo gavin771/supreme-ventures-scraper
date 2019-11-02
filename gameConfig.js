@@ -2,8 +2,7 @@ module.exports = [
   {
     title: "Cash Pot",
     key: "cash-pot",
-    numbersSelector:
-      ".game-container:nth-child(1) .game.cashpot .result-number",
+    numbersSelector: `(//div[@class="game-result"]//strong)[1]`,
     dateSelector:
       ".game-container:nth-child(1) .game.cashpot .game-result h5:nth-child(1)",
     drawNameSelector:
