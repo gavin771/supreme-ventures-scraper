@@ -34,5 +34,17 @@ module.exports = [
     description: "Cashpot 8:25PM draw",
     schedule: "45 20 * * *",
     data: { action: "store", game: "cash-pot" }
+  },
+  {
+    name: "Lotto_Wed",
+    description: "Lotto Wednesday draw",
+    schedule: "40 20 * * 3",
+    data: { action: "store", game: "lotto" }
+  },
+  {
+    name: "Lotto_Sat",
+    description: "Lotto Saturday draw",
+    schedule: "40 20 * * 6",
+    data: { action: "store", game: "lotto" }
   }
 ];

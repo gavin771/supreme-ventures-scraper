@@ -7,6 +7,7 @@ const getMonth = require("date-fns/getMonth");
 const storeResults = require("./firebase").save;
 const retrieveGameResults = require("./firebase").retrieveGame;
 const games = require("./gameConfig");
+const cashpotMappings = require("./cashpot-mappings");
 
 module.exports.getResults = async (
   gameKey = null,
@@ -102,7 +103,9 @@ const scrapePage = async (gameKey = null) => {
   }
   return await Promise.all(
     _games.map(async game => {
-      const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
+      const browser = await puppeteer.launch({
+        args: ["--no-sandbox"]
+      });
       const page = await browser.newPage();
       await page.goto(game.url, { waitUntil: "networkidle0" });
       await page.waitFor(1000);
@@ -119,6 +122,9 @@ const scrapePage = async (gameKey = null) => {
         drawName = drawName.toLowerCase().replace(/ /g, "-");
       }
 
+      if (winningNumbers.length === 0) {
+        throw new Error("no numbers found");
+      }
       game.winningNumbers = winningNumbers;
       game.date = currentTimestamp;
       game.drawName = drawName;
